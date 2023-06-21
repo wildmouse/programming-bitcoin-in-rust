@@ -1,4 +1,7 @@
-use std::{fmt::Error, ops::{Add, Sub}};
+use std::{
+    fmt::Error,
+    ops::{Add, Mul, Sub},
+};
 
 pub struct FieldElement {
     num: u32,
@@ -18,6 +21,14 @@ impl FieldElement {
     fn represent(&self) -> String {
         format!("FieldElement_{}({})", self.prime, self.num)
     }
+
+    fn pow(self, exponent: u32) -> Self {
+        let num = self.num.pow(exponent) % self.prime;
+        FieldElement {
+            num,
+            prime: self.prime,
+        }
+    }
 }
 
 impl Add for FieldElement {
@@ -28,7 +39,10 @@ impl Add for FieldElement {
             panic!("Cannot add two numbers in different Fields")
         }
         let num = (self.num + other.num) % self.prime;
-        FieldElement { num, prime: self.prime }
+        FieldElement {
+            num,
+            prime: self.prime,
+        }
     }
 }
 
@@ -40,7 +54,25 @@ impl Sub for FieldElement {
             panic!("Cannot sub two numbers in different Fields")
         }
         let num = (self.num - other.num) % self.prime;
-        FieldElement { num, prime: self.prime }
+        FieldElement {
+            num,
+            prime: self.prime,
+        }
+    }
+}
+
+impl Mul for FieldElement {
+    type Output = Self;
+
+    fn mul(self, other: Self) -> Self {
+        if self.prime != other.prime {
+            panic!("Cannot mul two numbers in different Fields")
+        }
+        let num = (self.num * other.num) % self.prime;
+        FieldElement {
+            num,
+            prime: self.prime,
+        }
     }
 }
 
@@ -48,7 +80,7 @@ impl PartialEq for FieldElement {
     fn eq(&self, other: &FieldElement) -> bool {
         self.num == other.num && self.prime == other.prime
     }
-} 
+}
 
 #[test]
 fn test_field_element() {
@@ -69,19 +101,19 @@ fn test_field_element_init_error() {
     }
 }
 
-#[test] 
-// test field element with prime 57 
+#[test]
+// test field element with prime 57
 fn test_field_element_with_prime_57() {
     let fm1 = FieldElement::new(44, 57).unwrap();
     let fm2 = FieldElement::new(33, 57).unwrap();
-    let result = fm1 + fm2; 
+    let result = fm1 + fm2;
     assert_eq!(result.num, 20);
 
     let fm3 = FieldElement::new(9, 57).unwrap();
     let fm4 = FieldElement::new(29, 57).unwrap();
-    let result = fm3 + fm4; 
+    let result = fm3 + fm4;
     assert_eq!(result.num, 38);
-} 
+}
 
 #[test]
 // assert added two field elements are equal to another field element
@@ -90,6 +122,23 @@ fn test_field_element_add() {
     let fm2 = FieldElement::new(12, 13).unwrap();
     let fm3 = FieldElement::new(6, 13).unwrap();
     assert!(fm1 + fm2 == fm3);
+}
+
+#[test]
+// test mul field element
+fn test_field_element_mul() {
+    let fm1 = FieldElement::new(3, 13).unwrap();
+    let fm2 = FieldElement::new(12, 13).unwrap();
+    let fm3 = FieldElement::new(10, 13).unwrap();
+    assert!(fm1 * fm2 == fm3);
+}
+
+#[test]
+// test pow field element
+fn test_field_element_pow() {
+    let fm1 = FieldElement::new(3, 13).unwrap();
+    let fm2 = FieldElement::new(1, 13).unwrap();
+    assert!(fm1.pow(3) == fm2);
 }
 
 #[test]
@@ -103,8 +152,8 @@ fn test_field_element_is_equal_to() {
     let fm1 = FieldElement::new(1, 3).unwrap();
     let fm2 = FieldElement::new(1, 3).unwrap();
     let fm3 = FieldElement::new(2, 3).unwrap();
-    assert!(fm1 == fm2); 
-    assert!(fm1 != fm3); 
+    assert!(fm1 == fm2);
+    assert!(fm1 != fm3);
 }
 
 fn main() {
