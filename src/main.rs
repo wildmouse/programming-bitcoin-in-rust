@@ -18,14 +18,13 @@ impl FieldElement {
     fn represent(&self) -> String {
         format!("FieldElement_{}({})", self.prime, self.num)
     }
-
-    fn is_equal_to(&self, other: Option<&FieldElement>) -> bool {
-        match other {
-            Some(other) => self.num == other.num && self.prime == other.prime,
-            None => false,
-        }
-    }
 }
+
+impl PartialEq for FieldElement {
+    fn eq(&self, other: &FieldElement) -> bool {
+        self.num == other.num && self.prime == other.prime
+    }
+} 
 
 #[test]
 fn test_field_element() {
@@ -57,9 +56,8 @@ fn test_field_element_is_equal_to() {
     let fm1 = FieldElement::new(1, 3).unwrap();
     let fm2 = FieldElement::new(1, 3).unwrap();
     let fm3 = FieldElement::new(2, 3).unwrap();
-    assert!(fm1.is_equal_to(Some(&fm2)));
-    assert!(!fm1.is_equal_to(Some(&fm3)));
-    assert!(!fm1.is_equal_to(None));
+    assert!(fm1 == fm2); 
+    assert!(fm1 != fm3); 
 }
 
 fn main() {
