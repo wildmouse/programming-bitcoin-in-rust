@@ -1,4 +1,4 @@
-use std::fmt::Error;
+use std::{fmt::Error, ops::{Add, Sub}};
 
 pub struct FieldElement {
     num: u32,
@@ -17,6 +17,30 @@ impl FieldElement {
 
     fn represent(&self) -> String {
         format!("FieldElement_{}({})", self.prime, self.num)
+    }
+}
+
+impl Add for FieldElement {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        if self.prime != other.prime {
+            panic!("Cannot add two numbers in different Fields")
+        }
+        let num = (self.num + other.num) % self.prime;
+        FieldElement { num, prime: self.prime }
+    }
+}
+
+impl Sub for FieldElement {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self {
+        if self.prime != other.prime {
+            panic!("Cannot sub two numbers in different Fields")
+        }
+        let num = (self.num - other.num) % self.prime;
+        FieldElement { num, prime: self.prime }
     }
 }
 
@@ -43,6 +67,29 @@ fn test_field_element_init_error() {
             assert_eq!(e, "num is not in field range")
         }
     }
+}
+
+#[test] 
+// test field element with prime 57 
+fn test_field_element_with_prime_57() {
+    let fm1 = FieldElement::new(44, 57).unwrap();
+    let fm2 = FieldElement::new(33, 57).unwrap();
+    let result = fm1 + fm2; 
+    assert_eq!(result.num, 20);
+
+    let fm3 = FieldElement::new(9, 57).unwrap();
+    let fm4 = FieldElement::new(29, 57).unwrap();
+    let result = fm3 + fm4; 
+    assert_eq!(result.num, 38);
+} 
+
+#[test]
+// assert added two field elements are equal to another field element
+fn test_field_element_add() {
+    let fm1 = FieldElement::new(7, 13).unwrap();
+    let fm2 = FieldElement::new(12, 13).unwrap();
+    let fm3 = FieldElement::new(6, 13).unwrap();
+    assert!(fm1 + fm2 == fm3);
 }
 
 #[test]
