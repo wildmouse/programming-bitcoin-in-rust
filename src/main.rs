@@ -3,6 +3,100 @@ use std::{
     ops::{Add, Mul, Sub},
 };
 
+pub struct Point {
+    a: i32,
+    b: i32,
+    x: Option<i32>,
+    y: Option<i32>,
+}
+
+impl Point {
+    fn new(x: Option<i32>, y: Option<i32>, a: i32, b: i32) -> Result<Option<Self>, &'static str> {
+        if x.is_none() && y.is_none() {
+            return Ok(None);
+        }
+        if x.is_none() ^ y.is_none() {
+            return Err("not on the curve");
+        }
+        if y.unwrap().pow(2) != x.unwrap().pow(3) + a * x.unwrap() + b {
+            Err("not on the curve")
+        } else {
+            Ok(Some(Point { a, b, x, y }))
+        }
+    }
+}
+
+// TODO exercise 2.2
+// TODO exercise 2.3
+
+impl Add for Point {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        if self.a != other.a || self.b != other.b {
+            panic!("Points are not on the same curve")
+        }
+
+        if self.x.is_none() {
+            return other;
+        }
+        if other.x.is_none() {
+            return self;
+        }
+
+        return Point {
+            x: None,
+            y: None,
+            a: self.a,
+            b: self.b,
+        };
+    }
+}
+
+#[test]
+fn test_point() {
+    let p1 = Point::new(Some(-1), Some(-1), 5, 7);
+    match p1 {
+        Ok(p) => {
+            let pp = p.unwrap();
+            assert_eq!(pp.x.unwrap(), -1);
+            assert_eq!(pp.y.unwrap(), -1);
+        }
+        Err(e) => {
+            assert!(false)
+        }
+    }
+
+    let p2 = Point::new(Some(-1), Some(-2), 5, 7);
+    match p2 {
+        Ok(p) => {
+            assert!(false)
+        }
+        Err(e) => {
+            assert_eq!(e, "not on the curve")
+        }
+    }
+
+    let p3 = Point::new(Some(18), Some(77), 5, 7);
+    match p3 {
+        Ok(p) => match p {
+            Some(pp) => {
+                assert_eq!(pp.x.unwrap(), 18);
+                assert_eq!(pp.y.unwrap(), 77);
+            }
+            None => {
+                assert!(false)
+            }
+        },
+        Err(e) => {
+            assert!(false)
+        }
+    }
+
+    let p4 = Point::new(None, None, 5, 7);
+   
+}
+
 pub struct FieldElement {
     num: u32,
     prime: u32,
