@@ -26,9 +26,6 @@ impl Point {
     }
 }
 
-// TODO exercise 2.2
-// TODO exercise 2.3
-
 impl Add for Point {
     type Output = Self;
 
@@ -44,12 +41,19 @@ impl Add for Point {
             return self;
         }
 
+        todo!("non infinite point addition"); 
         return Point {
             x: None,
             y: None,
             a: self.a,
             b: self.b,
         };
+    }
+}
+
+impl PartialEq for Point { 
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y && self.a == other.a && self.b == other.b
     }
 }
 
